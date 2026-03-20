@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiplication Mastery | Performance</title>
+    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="scores.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">Multiplication <span>Mastery</span></div>
+
+        <ul class="nav-links nav-main">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="benefits.html">Benefits</a></li>
+          <li><a href="game.html" id="nav-game">Game</a></li>
+          <li><a href="scores.html" class="active">Scores</a></li>
+        </ul>
+
+        <ul class="nav-links nav-auth">
+          <li><a href="signup.html">Sign Up</a></li>
+          <li><a href="signin.html">Log In</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="stats-dashboard">
+      <header class="stats-header">
+        <h2 id="playerTitle">PERFORMANCE ANALYTICS</h2>
+        <div class="level-selector">
+          <button class="level-btn" onclick="filterByLevel('Easy', this)">
+            EASY
+          </button>
+          <button class="level-btn" onclick="filterByLevel('Medium', this)">
+            MEDIUM
+          </button>
+          <button class="level-btn" onclick="filterByLevel('Hard', this)">
+            HARD
+          </button>
+          <button
+            class="level-btn active"
+            onclick="filterByLevel('Insane', this)"
+          >
+            INSANE
+          </button>
+        </div>
+        <div class="time-selector">
+          <button class="time-btn active" onclick="setTimeFilter('all', this)">
+            All Time
+          </button>
+          <button class="time-btn" onclick="setTimeFilter('week', this)">
+            Last Week
+          </button>
+          <button class="time-btn" onclick="setTimeFilter('month', this)">
+            Last Month
+          </button>
+          <button class="time-btn" onclick="setTimeFilter('year', this)">
+            Last Year
+          </button>
+          <div class="custom-date-container">
+            <input
+              type="date"
+              id="startDate"
+              onchange="triggerCustomFilter()"
+            />
+            <span style="color: white; margin: 0 5px">to</span>
+            <input type="date" id="endDate" onchange="triggerCustomFilter()" />
+          </div>
+        </div>
+      </header>
+
+      <div class="dashboard-grid">
+        <div class="chart-container stats-box">
+          <h3>SCORES CHART</h3>
+          <div style="height: 350px; position: relative">
+            <canvas id="performanceChart"></canvas>
+          </div>
+        </div>
+
+        <div class="table-container stats-box">
+          <h3>SESSION HISTORY</h3>
+          <div style="max-height: 400px; overflow-y: auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Duration</th>
+                  <th>Success Rate</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody id="scoresBody"></tbody>
+            </table>
+            <div class="pagination-controls">
+              <button id="prevBtn" onclick="changePage(-1)">PREVIOUS</button>
+              <span id="pageInfo">Page 1 of 1</span>
+              <button id="nextBtn" onclick="changePage(1)">NEXT</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+      let myChart;
+      let currentPage = 1;
+      const rowsPerPage = 10;
+      let filteredData = [];
+
+      // Global state variables to track user selection
+      let currentLevel = "";
+      let currentTimeFilter = "all";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // 1. Load user info from localStorage
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        if (user.fullName) {
+          document.getElementById("playerTitle").innerText =
+            `${user.fullName.toUpperCase()}'S PERFORMANCE`;
+        }
+
+        // 2. Automatically identify the active level from HTML
+        const activeBtn = document.querySelector(".level-btn.active");
+        if (activeBtn) {
+          currentLevel =
+            activeBtn.innerText.trim().charAt(0) +
+            activeBtn.innerText.trim().slice(1).toLowerCase();
+        } else {
+          currentLevel = "Insane"; // Fallback default
+        }
+
+        // 3. Initial data fetch
+        refreshData();
+      });
+
+      /**
+       * Updates the level state and triggers a unified refresh
+       */
+      async function filterByLevel(level, btn) {
+        // Toggle active button style
+        document
+          .querySelectorAll(".level-btn")
+          .forEach((b) => b.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+
+        // Update global state and refresh
+        currentLevel = level;
+        refreshData();
+      }
+
+      /**
+       * Handles preset time filters (Week, Month, etc.)
+       */
+      function setTimeFilter(period, btn) {
+        document
+          .querySelectorAll(".time-btn")
+          .forEach((b) => b.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+
+        currentTimeFilter = period;
+
+        // Reset manual date inputs if a preset is chosen
+        if (period !== "custom") {
+          document.getElementById("startDate").value = "";
+          document.getElementById("endDate").value = "";
+        }
+        refreshData();
+      }
+
+      /**
+       * Triggered when custom date inputs change
+       */
+      function triggerCustomFilter() {
+        currentTimeFilter = "custom";
+        document
+          .querySelectorAll(".time-btn")
+          .forEach((b) => b.classList.remove("active"));
+        refreshData();
+      }
+
+      /**
+       * Calculates the YYYY-MM-DD date range based on the selected filter
+       */
+      function getDateRange() {
+        let start = "";
+        let end = "";
+        const now = new Date();
+
+        if (currentTimeFilter === "week") {
+          const d = new Date();
+          d.setDate(d.getDate() - 7);
+          start = d.toISOString().split("T")[0];
+        } else if (currentTimeFilter === "month") {
+          const d = new Date();
+          d.setMonth(d.getMonth() - 1);
+          start = d.toISOString().split("T")[0];
+        } else if (currentTimeFilter === "year") {
+          const d = new Date();
+          d.setFullYear(d.getFullYear() - 1);
+          start = d.toISOString().split("T")[0];
+        } else if (currentTimeFilter === "custom") {
+          start = document.getElementById("startDate").value;
+          end = document.getElementById("endDate").value;
+        }
+        return { start, end };
+      }
+
+      /**
+       * MAIN FUNCTION: Fetches data using both Level and Time filters
+       */
+      async function refreshData() {
+        const levelMap = { Easy: 1, Medium: 2, Hard: 3, Insane: 4 };
+        const levelId = levelMap[currentLevel];
+        const { start, end } = getDateRange();
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          window.location.href = "signin.html";
+          return;
+        }
+
+        try {
+          // Unified API call with Level and Date parameters
+          const url = `/api/scores?levelId=${levelId}&startDate=${start}&endDate=${end}`;
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.status === 401 || response.status === 403) {
+            window.location.href = "signin.html";
+            return;
+          }
+
+          filteredData = await response.json();
+          currentPage = 1;
+          updateTable();
+          updateChart(filteredData);
+        } catch (error) {
+          console.error("Failed to fetch scores:", error);
+          filteredData = [];
+          updateTable();
+        }
+      }
+
+      /**
+       * Renders the data table with pagination
+       */
+      function updateTable() {
+        const body = document.getElementById("scoresBody");
+        const pageInfo = document.getElementById("pageInfo");
+
+        if (!filteredData || filteredData.length === 0) {
+          body.innerHTML =
+            '<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">No data found</td></tr>';
+          if (pageInfo) pageInfo.innerText = "Page 1 of 1";
+          return;
+        }
+
+        const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginatedItems = filteredData.slice(start, end);
+
+        body.innerHTML = paginatedItems
+          .map(
+            (d) => `
+            <tr>
+                <td>${d.DATE}</td>
+                <td>${d.DURATION}</td>
+                <td>${d.SUCCESS_RATE}%</td>
+                <td style="color:#bc13fe; font-weight:bold">${d.SCORE}</td>
+            </tr>
+        `,
+          )
+          .join("");
+
+        if (pageInfo)
+          pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
+        document.getElementById("prevBtn").disabled = currentPage === 1;
+        document.getElementById("nextBtn").disabled =
+          currentPage === totalPages || totalPages === 0;
+      }
+
+      /**
+       * Handles pagination navigation
+       */
+      function changePage(direction) {
+        currentPage += direction;
+        updateTable();
+      }
+
+      /**
+       * Updates the Chart.js instance with fresh data
+       */
+      function updateChart(data) {
+        const ctx = document
+          .getElementById("performanceChart")
+          .getContext("2d");
+        if (myChart) myChart.destroy();
+
+        const chartData = [...data].reverse();
+        const labels = chartData.map((d) => {
+          const parts = d.DATE.split("/");
+          return parts.length >= 2
+            ? [`${parts[0]}/${parts[1]}`, parts[2]]
+            : d.DATE;
+        });
+
+        myChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Score",
+                data: chartData.map((d) => d.SCORE),
+                borderColor: "#00f2ff",
+                backgroundColor: "rgba(0, 242, 255, 0.1)",
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: "#bc13fe",
+                pointRadius: 5,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                min: 0,
+                max: 100,
+                ticks: { color: "#fff" },
+                grid: { color: "rgba(255,255,255,0.05)" },
+              },
+              x: { ticks: { color: "#fff" }, grid: { display: false } },
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  title: (context) => chartData[context[0].dataIndex].DATE,
+                },
+              },
+            },
+          },
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">Multiplication <span>Mastery</span></div>
+
+        <ul class="nav-links nav-main">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="benefits.html">Benefits</a></li>
+          <li><a href="game.html" id="nav-game">Game</a></li>
+          <li><a href="scores.html">Scores</a></li>
+        </ul>
+
+        <ul class="nav-links nav-auth">
+          <li><a href="signup.html" class="active">Sign Up</a></li>
+          <li><a href="signin.html">Log In</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h2 id="formTitle">Sign Up</h2>
+
+      <div>
+        <label>Full Name:</label>
+        <input
+          type="text"
+          id="fullName"
+          placeholder="e.g. John Doe"
+          autocomplete="name"
+          required
+        />
+      </div>
+
+      <div>
+        <label>Email:</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="example@email.com"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <div>
+        <label>Password:</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="At least 6 characters"
+          autocomplete="new-password"
+          required
+        />
+      </div>
+
+      <div>
+        <label>Age:</label>
+        <input
+          type="number"
+          id="age"
+          min="1"
+          max="120"
+          placeholder="Enter your age (1-120)"
+          autocomplete="off"
+          required
+        />
+      </div>
+
+      <div>
+        <label>Country:</label>
+        <input
+          type="text"
+          id="country"
+          placeholder="e.g. Russia"
+          autocomplete="country-name"
+          required
+        />
+      </div>
+
+      <button id="submitBtn" onclick="handleFormAction()">Sign Up</button>
+
+      <div id="signInSection">
+        <h3>Already have a User? <br /><br />Log in Now!</h3>
+        <button onclick="window.location.href = 'signIn.html'">Log In</button>
+      </div>
+    </div>
+
+    <div id="customModal" class="modal">
+      <div class="modal-content container">
+        <h3 id="modalTitle">Notification</h3>
+        <p id="modalMessage"></p>
+
+        <div
+          id="modalPasswordSection"
+          style="display: none; margin: 15px 0; text-align: left"
+        >
+          <label style="font-size: 0.9rem; color: #ccc"
+            >Enter Password to Confirm:</label
+          >
+          <input
+            type="password"
+            id="modalPasswordInput"
+            placeholder="Your password"
+          />
+        </div>
+
+        <div class="modal-actions">
+          <button id="modalConfirm" class="btn-small">OK</button>
+          <button id="modalCancel" class="btn-small delete-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- Initialization: Handle Edit Mode if User is Logged In ---
+      document.addEventListener("DOMContentLoaded", () => {
+        const token = localStorage.getItem("token");
+        const userData = JSON.parse(localStorage.getItem("user"));
+
+        if (token && userData) {
+          updateUIForEditMode();
+          fillFormWithUserData(userData);
+        }
+      });
+
+      function updateUIForEditMode() {
+        const formTitle = document.querySelector("#formTitle");
+        const submitBtn = document.querySelector("#submitBtn");
+
+        if (formTitle) formTitle.innerText = "Update Your Profile";
+        if (submitBtn) submitBtn.innerText = "Save Changes";
+        document.title = "Update Profile";
+
+        const signInSection = document.querySelector("#signInSection");
+        if (signInSection) {
+          signInSection.style.display = "none";
+        }
+      }
+
+      function fillFormWithUserData(user) {
+        if (user.fullName)
+          document.querySelector("#fullName").value = user.fullName;
+        if (user.email) document.querySelector("#email").value = user.email;
+        if (user.age) document.querySelector("#age").value = user.age;
+        if (user.country)
+          document.querySelector("#country").value = user.country;
+
+        document.querySelector("#email").disabled = true;
+
+        const pwdInput = document.querySelector("#password");
+        if (pwdInput) {
+          pwdInput.placeholder = "Leave empty to keep current password";
+          pwdInput.required = false;
+        }
+      }
+
+      // --- UI Helper: Show Custom Modal Alert ---
+      // Added 'isDelete' parameter to handle the password verification UI
+      function showCustomAlert(title, message, callback, isDelete = false) {
+        const modal = document.getElementById("customModal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalMsg = document.getElementById("modalMessage");
+        const confirmBtn = document.getElementById("modalConfirm");
+        const cancelBtn = document.getElementById("modalCancel");
+        const pwdSection = document.getElementById("modalPasswordSection");
+        const pwdInput = document.getElementById("modalPasswordInput");
+
+        if (modalTitle) modalTitle.innerText = title;
+        if (modalMsg) modalMsg.innerText = message;
+
+        // Show or hide elements based on whether it's a deletion or notification
+        if (isDelete) {
+          pwdSection.style.display = "block";
+          cancelBtn.style.display = "inline-block";
+          pwdInput.value = ""; // Clear previous input
+        } else {
+          pwdSection.style.display = "none";
+          cancelBtn.style.display = "none";
+        }
+
+        modal.style.display = "flex";
+
+        confirmBtn.onclick = () => {
+          if (isDelete) {
+            const password = pwdInput.value;
+            if (!password) {
+              alert("Password is required to delete account.");
+              return;
+            }
+            if (callback) callback(password);
+          } else {
+            modal.style.display = "none";
+            if (callback) callback();
+          }
+        };
+
+        cancelBtn.onclick = () => {
+          modal.style.display = "none";
+        };
+      }
+
+      // --- Main Form Handler: POST (Sign Up) or PUT (Update) ---
+      // This function handles the logic for both creating a new user and updating an existing one.
+      function handleFormAction() {
+        const token = localStorage.getItem("token");
+        const fullName = document.querySelector("#fullName").value.trim();
+        const email = document.querySelector("#email").value.trim();
+        const password = document.querySelector("#password").value;
+        const age = document.querySelector("#age").value;
+        const country = document.querySelector("#country").value.trim();
+
+        // 1. Client-side Validation: Ensure required fields are not empty
+        if (!fullName || !email || !age || !country) {
+          showCustomAlert("Validation Error", "All fields are required.");
+          return;
+        }
+
+        // 2. Sign Up specific validation: Password is required only for new users
+        if (!token && !password) {
+          showCustomAlert(
+            "Validation Error",
+            "Password is required for Sign Up.",
+          );
+          return;
+        }
+
+        const userData = { fullName, email, password, age, country };
+        const method = token ? "PUT" : "POST";
+        const url = token ? "/updateProfile" : "/signUp";
+
+        // 3. Execution: Send data to the server via Fetch API
+        fetch(url, {
+          method: method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+          body: JSON.stringify(userData),
+        })
+          .then((res) => {
+            // We parse the JSON first to access the error message if the request failed
+            return res.json().then((data) => ({ ok: res.ok, data }));
+          })
+          .then(({ ok, data }) => {
+            // 4. Handle Logical Errors: Like "Email already exists" (Status 400)
+            if (!ok) {
+              // Instead of a generic error, show the server's specific message
+              showCustomAlert("Error", data.message || "Action failed.");
+              return;
+            }
+
+            // 5. Handle Success: Notify user and redirect
+            const successTitle =
+              method === "PUT" ? "Profile Updated" : "Success";
+
+            showCustomAlert(
+              successTitle,
+              data.message || "Action completed!",
+              () => {
+                // --- If this is a Sign Up (POST), save the token and user data ---
+                if (method === "POST" && data.token) {
+                  localStorage.setItem("token", data.token);
+                  localStorage.setItem("user", JSON.stringify(data.user));
+                }
+                // --- If this is an Update (PUT), sync the existing data ---
+                else if (token) {
+                  const storedUser = JSON.parse(localStorage.getItem("user"));
+                  const updatedUser = { ...storedUser, fullName, age, country };
+                  localStorage.setItem("user", JSON.stringify(updatedUser));
+                }
+
+                // Final Step: Redirect to home page
+                window.location.href = "index.html";
+              },
+            );
+          })
+          .catch((err) => {
+            // 6. Handle Network/Connection Errors: Triggered only if server is unreachable
+            console.error("Connection Error:", err);
+            showCustomAlert("Error", "Could not connect to the server.");
+          });
+      }
+      // --- Helper function to save login session after successful Sign Up ---
+      function saveSessionAndRedirect(data, fullName, age, country) {
+        if (data.token) {
+          // Save the JWT token and user info to browser storage
+          localStorage.setItem("token", data.token);
+          localStorage.setItem(
+            "user",
+            JSON.stringify({
+              fullName: fullName,
+              age: age,
+              country: country,
+              email: document.querySelector("#email").value.trim(),
+            }),
+          );
+        }
+        // Redirect to home page
+        window.location.href = "index.html";
+      }
+      // --- Navbar Authentication Logic ---
+      function updateNavbar() {
+        const token = localStorage.getItem("token");
+        const authNav = document.querySelector(".nav-links.nav-auth");
+
+        if (token && authNav) {
+          // Replace Sign In/Up with Logout and Profile links
+          authNav.innerHTML = `
+      <li><a href="#" id="logoutBtn" style="color: #ff4b2b;">Logout</a></li>
+    `;
+
+          // Handle Logout click
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", (e) => {
+              e.preventDefault();
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              window.location.href = "signin.html";
+            });
+        }
+      }
+
+      // Ensure the navbar updates when the page loads
+      document.addEventListener("DOMContentLoaded", updateNavbar);
+    </script>
+  </body>
+</html>

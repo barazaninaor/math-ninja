@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiplication Mastery | Home</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">Multiplication <span>Mastery</span></div>
+
+        <ul class="nav-links nav-main">
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="benefits.html">Benefits</a></li>
+          <li><a href="game.html" id="nav-game">Game</a></li>
+          <li><a href="scores.html">Scores</a></li>
+        </ul>
+
+        <ul class="nav-links nav-auth">
+          <li><a href="signup.html">Sign Up</a></li>
+          <li><a href="signin.html">Log In</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="hero-full-page">
+      <div class="hero-content">
+        <header>
+          <h2 class="main-title">Multiplication Mastery</h2>
+          <h3 class="sub-title">Train your brain. 5 minutes a day.</h3>
+        </header>
+
+        <div class="auth-actions-row">
+          <button onclick="handleStartPlaying()">Train</button>
+
+          <button
+            class="secondary-btn"
+            onclick="window.location.href = 'signup.html'"
+          >
+            Create Account
+          </button>
+        </div>
+
+        <div class="benefits-grid">
+          <div class="benefit-item">
+            <h4 class="benefit-title">The "Toothbrush" Habit</h4>
+            <p class="benefit-text">
+              Just like brushing your teeth prevents decay, 5 minutes of mental
+              math prevents cognitive decline. It's a small daily investment
+              that strengthens your prefrontal cortex—the brain's command center
+              for focus and emotional control.
+            </p>
+          </div>
+
+          <div class="benefit-item">
+            <h4 class="benefit-title">Working Memory (RAM)</h4>
+            <p class="benefit-text">
+              Solving problems like 87 × 54 forces your brain to hold and
+              manipulate multiple variables at once. This acts as a
+              high-intensity workout for your short-term memory, significantly
+              improving your mental "RAM" for coding and logic.
+            </p>
+          </div>
+
+          <div class="benefit-item">
+            <h4 class="benefit-title">150-Minute Investment</h4>
+            <p class="benefit-text">
+              In 30 days, you will only spend 150 minutes here—less than the
+              duration of one movie. The "risk" is 2.5 hours of your life for a
+              permanent upgrade in mental clarity. Stop consuming junk dopamine
+              and start earning cognitive gains.
+            </p>
+          </div>
+        </div>
+
+        <div class="learn-more-wrapper" style="margin-top: 50px">
+          <a href="benefits.html" class="learn-more-link">
+            <span>READ THE FULL VISION →</span>
+          </a>
+        </div>
+      </div>
+    </main>
+    <script src="auth.js"></script>
+    <script>
+      /**
+       * Handles navigation to the game.
+       * Checks for JWT token in local storage to determine destination.
+       */
+      function handleStartPlaying() {
+        const token = localStorage.getItem("token");
+
+        if (token) {
+          // User is logged in, proceed to the game
+          window.location.href = "game.html";
+        } else {
+          // No token found, redirect to sign-in page
+          window.location.href = "signin.html";
+        }
+      }
+
+      /**
+       * Attaches listeners once the DOM is fully loaded.
+       * This ensures the "Train" link in the navbar behaves like the "Train" button.
+       */
+      document.addEventListener("DOMContentLoaded", () => {
+        const navTrainLink = document.getElementById("nav-game");
+
+        if (navTrainLink) {
+          navTrainLink.addEventListener("click", (e) => {
+            e.preventDefault(); // Stop standard navigation
+            handleStartPlaying(); // Run custom auth check
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

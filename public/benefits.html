@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Science Behind Your New Habit</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">Multiplication <span>Mastery</span></div>
+
+        <ul class="nav-links nav-main">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="benefits.html" class="active">Benefits</a></li>
+          <li><a href="game.html" id="nav-game">Game</a></li>
+          <li><a href="scores.html">Scores</a></li>
+        </ul>
+
+        <ul class="nav-links nav-auth">
+          <li><a href="signup.html">Sign Up</a></li>
+          <li><a href="signin.html">Log In</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="science-page">
+      <header class="science-header">
+        <h2 class="main-title">The Science Behind Your New Habit</h2>
+        <h3 class="sub-title">Why 5 minutes change everything</h3>
+      </header>
+
+      <section class="science-row">
+        <div class="row-content">
+          <div class="row-label">Concept: Structural Brain Change</div>
+          <h4 class="row-title">Neuroplasticity</h4>
+          <p class="row-text">
+            Regular mental arithmetic stimulates the production of
+            <strong>myelin</strong>, the protective coating around neurons. This
+            increases the speed and efficiency of electrical signals in your
+            brain, making you sharper in every aspect of life. By consistently
+            challenging your mind, you are literally re-wiring your neural
+            pathways for peak performance.
+          </p>
+        </div>
+      </section>
+
+      <section class="science-row alternate">
+        <div class="row-content">
+          <div class="row-label">Target: Prefrontal Cortex</div>
+          <h4 class="row-title">Executive Function</h4>
+          <p class="row-text">
+            By forcing yourself to solve complex problems without a calculator,
+            you are directly exercising your <strong>prefrontal cortex</strong>.
+            This is the area responsible for decision-making, focus, and
+            emotional regulation. Improving this function helps you maintain
+            clarity and composure during high-stress situations.
+          </p>
+        </div>
+      </section>
+
+      <section class="science-row">
+        <div class="row-content">
+          <div class="row-label">Outcome: Financial Literacy</div>
+          <h4 class="row-title">Quantitative Intuition</h4>
+          <p class="row-text">
+            Training your brain to handle numbers instinctively gives you an
+            edge in finance and business. You'll begin to spot patterns,
+            calculate risks, and understand data without needing to rely on
+            external tools. This builds a "gut feeling" for numbers that is
+            essential for long-term investment strategies.
+          </p>
+        </div>
+      </section>
+
+      <section class="science-row alternate">
+        <div class="row-content">
+          <div class="row-label">Benefit: Mental Endurance</div>
+          <h4 class="row-title">Cognitive Load</h4>
+          <p class="row-text">
+            The "150-minute challenge" builds mental stamina. Just as athletes
+            build endurance through short, high-intensity intervals, you are
+            building the capacity to handle heavy mental workloads without
+            burning out. Over time, tasks that used to feel exhausting will
+            become second nature.
+          </p>
+        </div>
+      </section>
+
+      <div class="bottom-action">
+        <button class="primary-btn" onclick="handleStartPlaying()">
+          Ready to Start?
+        </button>
+      </div>
+    </main>
+    <script src="auth.js"></script>
+    <script>
+      function handleStartPlaying() {
+        const token = localStorage.getItem("token");
+        window.location.href = token ? "game.html" : "signin.html";
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const navTrainLink = document.getElementById("nav-game");
+        if (navTrainLink) {
+          navTrainLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            handleStartPlaying();
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

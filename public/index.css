@@ -1,0 +1,1105 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", "Impact", sans-serif;
+  background: radial-gradient(circle, #2a0a4d 0%, #05010a 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.container {
+  background: rgba(10, 10, 20, 0.9);
+  padding: 40px;
+  width: 380px;
+  height: fit-content;
+  border-top: 2px solid #bc13fe;
+  border-bottom: 2px solid #bc13fe;
+  box-shadow: 0 0 25px rgba(188, 19, 254, 0.4);
+  text-align: center;
+  position: relative;
+  backdrop-filter: blur(5px);
+}
+
+h2 {
+  text-transform: uppercase;
+  font-style: italic;
+  letter-spacing: 3px;
+  margin-bottom: 30px;
+  color: #fff;
+  text-shadow:
+    0 0 10px #bc13fe,
+    0 0 20px #8a2be2;
+}
+
+h3 {
+  text-transform: uppercase;
+  font-style: italic;
+  letter-spacing: 3px;
+  margin-bottom: 30px;
+  color: #fff;
+  text-shadow:
+    0 0 20px #2313fe,
+    0 0 30px #2baee2;
+  font-size: 20px;
+}
+
+.input-group {
+  margin-bottom: 22px;
+  text-align: left;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 0.8rem;
+  color: #b3b3b3;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  background: #000;
+  border: 1px solid #4b0082;
+  color: #bc13fe;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.3s ease-in-out;
+}
+
+input:focus {
+  border-color: #bc13fe;
+  box-shadow: 0 0 15px rgba(188, 19, 254, 0.6);
+  background: #0f0f1a;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #4b0082 0%, #bc13fe 50%, #4b0082 100%);
+  background-size: 200% auto;
+  border: none;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.4s;
+  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0% 100%);
+}
+
+button:hover {
+  background-position: right center;
+  box-shadow: 0 0 20px #bc13fe;
+  transform: scale(1.03) skewX(-2deg);
+}
+
+button:active {
+  transform: scale(0.92) skewX(-5deg);
+  filter: brightness(1.5);
+  box-shadow: 0 0 40px #bc13fe;
+  transition: 0.05s;
+}
+
+.gallery-container {
+  width: 90%;
+  max-width: 1100px;
+  height: auto;
+  min-height: 400px;
+}
+
+.nav-controls {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.action-btn {
+  width: auto !important;
+  padding: 10px 25px !important;
+}
+
+.logout-btn {
+  background: linear-gradient(
+    135deg,
+    #4d0a0a 0%,
+    #fe1313 50%,
+    #4d0a0a 100%
+  ) !important;
+  color: #ffffff;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.card {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #4b0082;
+  padding: 20px;
+  transition: 0.3s ease-in-out;
+  text-align: left;
+  backdrop-filter: blur(10px);
+}
+
+.card:hover {
+  border-color: #bc13fe;
+  box-shadow: 0 0 20px rgba(188, 19, 254, 0.4);
+  transform: translateY(-5px);
+}
+
+.card-title {
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  color: #fff;
+  text-shadow: 0 0 10px #bc13fe;
+  border-bottom: 1px dashed #4b0082;
+  padding-bottom: 10px;
+}
+
+.card-info p {
+  margin: 8px 0;
+  font-size: 0.9rem;
+  color: #b3b3b3;
+}
+
+.card-info span {
+  color: #bc13fe;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-small {
+  padding: 8px 12px !important;
+  font-size: 0.75rem !important;
+  margin: 0 !important;
+  clip-path: none !important; /* כפתורים קטנים נראים טוב יותר מרובעים */
+  width: 100%;
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #660000 0%, #ff1a1a 100%);
+}
+
+.status-message {
+  margin-top: 20px;
+  font-size: 1rem;
+}
+.success {
+  color: #00ff88;
+  text-shadow: 0 0 10px #00ff88;
+}
+.warning {
+  color: #ffaa00;
+  text-shadow: 0 0 10px #ffaa00;
+}
+
+/* Modal Overlay */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal Content Box */
+.modal-content {
+  max-width: 420px;
+  border: 2px solid #bc13fe !important;
+  box-shadow: 0 0 30px rgba(188, 19, 254, 0.5);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Navbar Styling */
+.navbar {
+  background-color: #1a1a2e;
+  padding: 1rem 2rem;
+  border-bottom: 2px solid #6a0dad;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(106, 13, 173, 0.3);
+  box-sizing: border-box;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  max-width: 1400px; /* הגדלתי מעט כדי לתת מרחב */
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* 1. הלוגו נשאר בשמאל */
+.logo {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  flex: 0 0 auto; /* לא נותן ללוגו להימתח */
+}
+
+.logo span {
+  color: #a020f0;
+}
+
+/* 2. התפריט המרכזי - האזור שדוחף את הכל */
+.nav-main {
+  flex: 1; /* תופס את כל המרחב הפנוי */
+  display: flex;
+  justify-content: center; /* ממרכז את הקישורים שבתוכו */
+}
+
+/* 3. אזור ההתחברות/לוגאאוט - נצמד לימין */
+.nav-auth {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* סטיילינג כללי לרשימות הקישורים */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #e0e0e0;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  white-space: nowrap; /* מונע מהטקסט לרדת שורה */
+}
+
+.nav-links a:hover {
+  color: #a020f0;
+  text-shadow: 0 0 8px rgba(160, 32, 240, 0.8);
+}
+
+.nav-links a.active {
+  color: #a020f0;
+  border-bottom: 2px solid #a020f0;
+}
+
+.logout-link {
+  color: #ff4b2b !important;
+}
+
+/* Add this to your main container to prevent content overlap */
+body {
+  padding-top: 80px;
+}
+
+/* index */
+
+/* Full page layout with centered content */
+.hero-full-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px); /* Full height minus navbar offset */
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Main content wrapper */
+.hero-content {
+  max-width: 900px;
+  width: 100%;
+}
+
+/* Primary heading styling */
+.main-title {
+  font-size: 4rem;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  font-style: italic;
+  letter-spacing: 3px;
+  color: #fff;
+  text-shadow:
+    0 0 15px #bc13fe,
+    0 0 30px #8a2be2;
+}
+
+/* Secondary heading styling */
+.sub-title {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 10px #2313fe;
+}
+
+/* Description paragraph styling */
+.hero-description {
+  color: #b3b3b3;
+  font-size: 1.2rem;
+  max-width: 650px;
+  margin: 0 auto 40px auto;
+  line-height: 1.6;
+}
+
+/* Flex container for horizontal action buttons */
+.auth-actions-row {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+/* Fixed width for buttons in the row */
+.auth-actions-row button {
+  width: 240px;
+  margin: 0;
+}
+
+/* Styled secondary button variant */
+.secondary-btn {
+  background: linear-gradient(135deg, #1a1a2e 0%, #4b0082 100%) !important;
+  border: 1px solid #bc13fe !important;
+}
+
+/* Learn more link styling */
+.learn-more-link {
+  text-decoration: none;
+  font-size: 1rem;
+  transition: 0.3s ease-in-out;
+  color: #bc13fe;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.learn-more-link:hover {
+  text-shadow: 0 0 15px #bc13fe;
+  color: #fff;
+}
+
+/* Layout for the three benefit blocks */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 50px;
+  text-align: left;
+}
+
+/* Individual benefit block styling */
+.benefit-item {
+  background: rgba(26, 26, 46, 0.4);
+  padding: 25px;
+  border-left: 3px solid #bc13fe;
+  border-radius: 4px;
+  transition: transform 0.3s ease;
+}
+
+.benefit-item:hover {
+  background: rgba(188, 19, 254, 0.1);
+  transform: translateY(-5px);
+}
+
+/* Benefit title with neon effect */
+.benefit-title {
+  font-size: 1.4rem;
+  color: #fff;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(188, 19, 254, 0.5);
+}
+
+/* Benefit description text */
+.benefit-text {
+  color: #b3b3b3;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive adjustment for small screens */
+@media (max-width: 768px) {
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Benefits */
+/* Science Page Layout */
+.science-page {
+  padding-top: 60px; /* Offset for Navbar */
+}
+
+.science-header {
+  text-align: center;
+  padding: 80px 20px;
+  background: radial-gradient(
+    circle at center,
+    rgba(188, 19, 254, 0.05) 0%,
+    transparent 70%
+  );
+}
+
+/* Full Width Rows */
+.science-row {
+  width: 100%;
+  padding: 100px 0;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid rgba(188, 19, 254, 0.1);
+}
+
+.science-row.alternate {
+  background: rgba(10, 10, 20, 0.4); /* subtle contrast between rows */
+}
+
+.row-content {
+  max-width: 900px;
+  width: 90%;
+}
+
+.row-label {
+  color: #bc13fe;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+
+.row-title {
+  font-size: 3rem;
+  color: #fff;
+  margin-bottom: 25px;
+  text-shadow: 0 0 15px rgba(188, 19, 254, 0.3);
+}
+
+.row-text {
+  font-size: 1.4rem;
+  line-height: 1.8;
+  color: #b3b3b3;
+  max-width: 800px;
+}
+
+.row-text strong {
+  color: #fff;
+  text-shadow: 0 0 5px #bc13fe;
+}
+
+.bottom-action {
+  padding: 100px 0;
+  text-align: center;
+}
+
+.bottom-action .primary-btn {
+  padding: 20px 60px;
+  font-size: 1.5rem;
+}
+
+/* Signing */
+/* --- Loading Overlay --- */
+#loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(
+    10,
+    5,
+    20,
+    0.98
+  ); /* Very dark purple/black background */
+  display: none; /* Controlled by JS */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* --- Large Purple Loading Text --- */
+.loader-text {
+  font-size: 5rem;
+  font-weight: 900;
+  color: #bc13fe; /* Neon Purple */
+  text-transform: uppercase;
+  letter-spacing: 10px;
+  font-style: italic;
+
+  /* Neon Glow Effect */
+  text-shadow:
+    0 0 10px #bc13fe,
+    0 0 20px #bc13fe,
+    0 0 40px #bc13fe,
+    0 0 80px #bc13fe;
+
+  /* Animation */
+  animation: neonPulse 1.5s infinite alternate;
+}
+
+/* --- Pulse Animation --- */
+@keyframes neonPulse {
+  from {
+    opacity: 0.7;
+    transform: scale(0.95);
+    text-shadow:
+      0 0 10px #bc13fe,
+      0 0 20px #bc13fe;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.05);
+    text-shadow:
+      0 0 20px #bc13fe,
+      0 0 40px #bc13fe,
+      0 0 100px #bc13fe;
+  }
+}
+
+/* Change the white background of autofill to match your theme */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  /* This creates an inner shadow that covers the browser's default white color */
+  -webkit-box-shadow: 0 0 0px 1000px #0b0214 inset !important;
+  /* This changes the text color inside the autofilled field */
+  -webkit-text-fill-color: #f0f0f0 !important;
+  /* Transition to make it smooth */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* --- Optional: Secondary Text Style --- */
+#loadingOverlay::after {
+  content: "YOUR TRAINING IS ABOUT TO START...";
+  margin-top: 20px;
+  font-size: 1rem;
+  color: #00d4ff; /* Neon Blue accent */
+  letter-spacing: 3px;
+  text-shadow: 0 0 5px #00d4ff;
+  opacity: 0.8;
+}
+
+/* Game */
+.container.game-main-container {
+  background: rgba(10, 10, 25, 0.8);
+  border: 1px solid rgba(188, 19, 254, 0.6);
+  border-radius: 20px;
+
+  /* --- WIDTH ADJUSTMENTS --- */
+  max-width: 500px; /* CHANGE THIS: Increase this value to make the console wider (e.g., 800px, 900px) */
+  width: 90%; /* ADD THIS: Ensures the container stays responsive on smaller screens */
+  /* ------------------------- */
+
+  margin: 40px auto;
+  padding: 40px 30px;
+  box-shadow:
+    0 0 15px rgba(188, 19, 254, 0.4),
+    0 0 30px rgba(188, 19, 254, 0.2),
+    inset 0 0 10px rgba(188, 19, 254, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.container.game-main-container::before,
+.container.game-main-container::after {
+  content: "";
+  position: absolute;
+  top: 10%;
+  bottom: 10%;
+  width: 2px;
+  background: #bc13fe;
+  box-shadow: 0 0 15px #bc13fe;
+  opacity: 0.8;
+}
+
+.container.game-main-container::before {
+  left: 0;
+}
+
+.container.game-main-container::after {
+  right: 0;
+}
+
+.difficulty-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.diff-btn {
+  width: 100%;
+  padding: 15px;
+  background: transparent;
+  border: 2px solid #bc13fe; /* סגול ניאון */
+  color: white;
+  font-family:
+    "Courier New", Courier, monospace; /* פונט של קוד/מכונה כמו במקור */
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.diff-btn:hover {
+  background: rgba(188, 19, 254, 0.1);
+  box-shadow: 0 0 15px #bc13fe;
+}
+
+/* כפתור נבחר */
+.diff-btn.selected {
+  background: #bc13fe;
+  color: black;
+  box-shadow: 0 0 20px #bc13fe;
+}
+
+/* כפתור INSANE מיוחד */
+.diff-btn.insane {
+  border-color: #ff0055; /* אדום/ורוד חזק יותר */
+}
+
+.diff-btn.insane.selected {
+  background: #ff0055;
+  border-color: #ff0055;
+}
+
+/* Results */
+.result-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid #bc13fe;
+  padding: 30px;
+  background: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 15px #bc13fe;
+}
+
+.stats-box {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.stats-box p {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(188, 19, 254, 0.3);
+  padding: 5px 0;
+}
+
+/* Container for game rules with a full neon border */
+.rules-container {
+  background: rgba(26, 26, 46, 0.9); /* Dark space background */
+  border: 2px solid #bc13fe; /* Closed neon purple border */
+  border-radius: 20px; /* Rounded corners instead of slanted edges */
+  box-shadow: 0 0 20px rgba(188, 19, 254, 0.3); /* Purple glow effect */
+  padding: 30px;
+  margin: 40px auto;
+  max-width: 550px;
+  text-align: left;
+}
+
+/* Rules title with italic neon style */
+.rules-container h3 {
+  font-family: "Arial Black", sans-serif;
+  color: #fff;
+  text-transform: uppercase;
+  font-style: italic;
+  text-shadow: 0 0 10px #bc13fe;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+/* List styling to show the lightning blue markers on the left */
+.rules-container ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 25px;
+}
+
+.rules-container li {
+  color: #ffffff;
+  margin-bottom: 15px;
+  font-size: 1.05rem;
+  padding-left: 15px;
+  /* Lightning blue vertical markers on the left */
+  border-left: 4px solid #00f2ff;
+  line-height: 1.4;
+  text-shadow: 0 0 5px rgba(0, 242, 255, 0.5);
+}
+
+/* Penalty indicators with bold neon colors */
+.warning-text {
+  display: flex;
+  align-items: center;
+  font-weight: 800;
+  margin-top: 15px;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+}
+
+/* Red neon warning for wrong answers */
+.red-warn {
+  color: #ff0055;
+  text-shadow: 0 0 8px #ff0055;
+}
+
+/* Orange neon warning for time penalties */
+.orange-warn {
+  color: #ffaa00;
+  text-shadow: 0 0 8px #ffaa00;
+}
+
+/* Numpad and Button styling */
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* Purple num buttons with original polygon clip-path */
+.num-btn {
+  background: #bc13fe;
+  color: #fff;
+  border: none;
+  padding: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+  transition: all 0.2s ease;
+}
+
+.num-btn:active {
+  transform: scale(0.9);
+  filter: brightness(1.2);
+}
+
+.clear-btn {
+  background: #444;
+}
+.del-btn {
+  background: #666;
+}
+
+/* End screen styling */
+.end-card {
+  border: 2px solid #bc13fe;
+  box-shadow: 0 0 20px #bc13fe;
+  padding: 40px;
+  text-align: center;
+  width: 100%;
+  max-width: 450px;
+  background: rgba(10, 10, 20, 0.95);
+  border-radius: 20px;
+}
+
+.score-box {
+  background: #000;
+  padding: 20px;
+  border: 2px solid #fff;
+  margin-bottom: 30px;
+  box-shadow: inset 0 0 10px #bc13fe;
+}
+
+/* Scores */
+.stats-dashboard {
+  max-width: 1200px;
+  width: 95%;
+  margin: 40px auto;
+}
+
+.stats-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.stats-header h2 {
+  font-family: "Arial Black", sans-serif;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-style: italic;
+  text-shadow: 0 0 15px #bc13fe;
+  margin-bottom: 30px;
+}
+
+.level-selector {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.level-btn {
+  background: rgba(188, 19, 254, 0.1);
+  border: 1px solid #bc13fe;
+  color: #fff;
+  padding: 12px 35px;
+  cursor: pointer;
+  font-family: "Arial Black", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.level-btn.active {
+  background: #bc13fe;
+  box-shadow: 0 0 20px #bc13fe;
+  color: #000;
+}
+
+.level-btn:hover:not(.active) {
+  background: rgba(188, 19, 254, 0.3);
+  box-shadow: 0 0 10px rgba(188, 19, 254, 0.2);
+}
+
+/* --- Time Filter Section --- */
+
+.time-selector {
+  display: flex;
+  justify-content: center; /* מרכז את כל השורה */
+  align-items: center;
+  gap: 15px;
+  margin-top: 25px;
+  padding: 10px;
+  flex-wrap: nowrap; /* מונע מהם לרדת שורה */
+}
+
+.preset-filters {
+  display: flex;
+  gap: 10px;
+}
+
+.time-btn {
+  background: transparent;
+  border: 1px solid #bc13fe;
+  color: #fff;
+  /* גודל דומה לכפתורי ניווט/הרשמה */
+  padding: 6px 15px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  border-radius: 4px; /* פינות מעוגלות קלות במקום אלכסון */
+}
+
+.time-btn.active,
+.time-btn:hover {
+  background: #bc13fe;
+  box-shadow: 0 0 10px #bc13fe;
+  color: #000;
+}
+
+.custom-date-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.custom-date-container input[type="date"] {
+  background: rgba(10, 10, 25, 0.9);
+  border: 1px solid #00f2ff;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+/* ביטול הצורה האלכסונית אם בטעות הוספת אותה לכפתורי הזמן */
+.time-btn {
+  clip-path: none !important;
+}
+.dashboard-grid {
+  display: flex;
+  flex-direction: column;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 30px;
+  width: 100%;
+}
+
+.stats-box {
+  background: rgba(10, 10, 25, 0.8);
+  border: 1px solid rgba(188, 19, 254, 0.6);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow:
+    0 0 15px rgba(188, 19, 254, 0.3),
+    inset 0 0 10px rgba(188, 19, 254, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-box::before {
+  content: "";
+  position: absolute;
+  top: 15%;
+  bottom: 15%;
+  left: 0;
+  width: 3px;
+  background: #00f2ff;
+  box-shadow: 0 0 15px #00f2ff;
+  opacity: 0.8;
+}
+
+.stats-box h3 {
+  color: #00f2ff;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+  font-family: "Arial Black", sans-serif;
+  padding-left: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+th {
+  background: rgba(188, 19, 254, 0.15);
+  color: #fff;
+  padding: 15px;
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  border-bottom: 2px solid #bc13fe;
+}
+
+td {
+  padding: 15px;
+  border-bottom: 1px solid rgba(188, 19, 254, 0.1);
+  font-size: 1rem;
+  color: #e0e0e0;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+canvas {
+  width: 100% !important;
+  max-height: 350px;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end; /* Align to the right */
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding-right: 10px; /* Slight offset from the edge */
+  white-space: nowrap; /* Prevent line breaks */
+}
+
+.pagination-controls button {
+  background: rgba(188, 19, 254, 0.1); /* Transparent purple */
+  border: 1px solid #bc13fe; /* Purple neon border */
+  color: #fff;
+  padding: 8px 25px;
+  cursor: pointer;
+  font-family: "Arial Black", sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  /* This creates the slanted look from your signup buttons */
+  clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+  transition: all 0.3s ease;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+  background: #bc13fe;
+  box-shadow: 0 0 15px #bc13fe;
+  color: #000;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+  border-color: #666;
+}
+
+#pageInfo {
+  color: #fff;
+  font-size: 0.75rem;
+  font-family: "Montserrat", sans-serif;
+  margin: 0 5px;
+  min-width: max-content; /* Ensure it stays in one line */
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .level-selector {
+    flex-wrap: wrap;
+  }
+
+  .level-btn {
+    padding: 10px 20px;
+    font-size: 0.75rem;
+  }
+}

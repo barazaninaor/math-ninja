@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiplication Mastery | Log In</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body onload="clearFields()">
+    <div id="loadingOverlay" style="display: none">
+      <div class="loader-text">LOADING...</div>
+    </div>
+
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">Multiplication <span>Mastery</span></div>
+
+        <ul class="nav-links nav-main">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="benefits.html">Benefits</a></li>
+          <li><a href="game.html" id="nav-game">Game</a></li>
+          <li><a href="scores.html">Scores</a></li>
+        </ul>
+
+        <ul class="nav-links nav-auth">
+          <li><a href="signup.html">Sign Up</a></li>
+          <li><a href="signin.html" class="active">Log In</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h2>LOG IN</h2>
+
+      <div>
+        <label>EMAIL:</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="Enter your email"
+          autocomplete="username"
+          required
+        />
+      </div>
+
+      <div>
+        <label>PASSWORD:</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button id="signinBtn" onclick="sendSignIn()">Log IN</button>
+
+      <p
+        id="errorMessage"
+        style="
+          color: #ff4b2b;
+          font-size: 14px;
+          margin-top: 10px;
+          min-height: 1.2em;
+        "
+      ></p>
+
+      <div id="signUpSection" style="margin-top: 20px">
+        <h3>DON'T HAVE A USER? <br /><br />SIGN UP NOW!</h3>
+        <button
+          class="secondary-btn"
+          onclick="window.location.href = 'signup.html'"
+        >
+          SIGN UP
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function clearFields() {
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+      }
+
+      function sendSignIn() {
+        const errorDisplay = document.querySelector("#errorMessage");
+        const loader = document.querySelector("#loadingOverlay");
+        const email = document.querySelector("#email").value;
+        const password = document.querySelector("#password").value;
+
+        errorDisplay.textContent = "";
+
+        if (!email.trim() || !password.trim()) {
+          errorDisplay.textContent = "Please fill in all fields.";
+          return;
+        }
+
+        fetch("/signIn", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error("Invalid email or password.");
+            return res.json();
+          })
+          .then((data) => {
+            const token = data.theToken || data.myToken || data.token;
+            if (token) {
+              // שמירת הטוקן
+              localStorage.setItem("token", token);
+
+              // שמירת פרטי המשתמש המלאים (כולל full_name מה-DB)
+              if (data.user) {
+                localStorage.setItem("user", JSON.stringify(data.user));
+              }
+
+              errorDisplay.textContent = "";
+              loader.style.display = "flex";
+
+              // השהייה של 3 שניות כפי שביקשת בעיצוב
+              setTimeout(() => {
+                window.location.replace("game.html");
+              }, 3000);
+            } else {
+              throw new Error("No token received.");
+            }
+          })
+          .catch((err) => {
+            errorDisplay.textContent = err.message || "Server error.";
+          });
+      }
+
+      document.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendSignIn();
+      });
+    </script>
+    <script src="index.js"></script>
+  </body>
+</html>
