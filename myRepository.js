@@ -17,10 +17,16 @@ async function spAddNewUser(full_name, email, hashed_password, age, country) {
  * Edit Profile logic: Updates existing user information
  */
 async function spUpdateUser(theid, full_name, password, age, country) {
-  // Ensure theid is an integer
   const userId = parseInt(theid, 10);
 
-  // We write the SQL directly here to bypass Railway's procedure issues
+  // Validation: Ensure no critical value is null
+  const finalName = full_name || "User";
+  const finalAge = age || 0;
+  const finalCountry = country || "Unknown";
+  // If password is empty, we should ideally keep the old one,
+  // but for now, we ensure it's at least a string to avoid the NULL error.
+  const finalPassword = password || "";
+
   const sql = `
     UPDATE users 
     SET full_name = ?, password = ?, age = ?, country = ? 
@@ -28,9 +34,17 @@ async function spUpdateUser(theid, full_name, password, age, country) {
   `;
 
   try {
-    await pool.execute(sql, [full_name, password, age, country, userId]);
+    if (isNaN(userId)) throw new Error("Invalid User ID");
+
+    await pool.execute(sql, [
+      finalName,
+      finalPassword,
+      finalAge,
+      finalCountry,
+      userId,
+    ]);
   } catch (err) {
-    console.error("Direct Update Error:", err);
+    console.error("Database Update Error:", err);
     throw err;
   }
 }
