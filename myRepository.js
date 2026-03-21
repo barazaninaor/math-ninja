@@ -34,20 +34,41 @@ async function spDeleteUser(theid) {
 }
 
 // 5. Scores
+// 5. Get Player Scores with formatting
 async function spGetPlayerScores(userId, levelId, startDate, endDate) {
-  const [rows] = await pool.execute("CALL railway.spGetPlayerScores(?, ?, ?, ?)", 
-    [userId, levelId, startDate || null, endDate || null]);
+  // Execute the stored procedure on Railway MySQL
+  const [rows] = await pool.execute(
+    "CALL railway.spGetPlayerScores(?, ?, ?, ?)",
+    [userId, levelId, startDate || null, endDate || null],
+  );
+
+  // Extract the first element of the result array (the actual data rows)
   const results = rows[0] || [];
+
+  // Map the raw database rows to a formatted object for the Frontend
   return results.map((row) => {
     const correct = row.correct_answers;
     const duration = row.duration_seconds;
-    let finalScore = 100 - ((30 - correct) * 3);
-    if (duration > 300) finalScore -= Math.floor((duration - 300) / 10);
+
+    // Convert total seconds into MM:SS format (e.g., 380s -> 6:20)
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+    // padStart ensures we always have two digits for seconds (e.g., 6:05 instead of 6:5)
+    const durationDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+    // Calculate the final score based on correct answers and time penalties
+    let finalScore = 100 - (30 - correct) * 3;
+    
+    // Apply penalty for duration exceeding 300 seconds (5 minutes)
+    if (duration > 300) {
+      finalScore -= Math.floor((duration - 300) / 10);
+    }
+
     return {
-      DATE: new Date(row.played_at).toLocaleDateString("en-GB"),
-      DURATION: duration,
-      SUCCESS_RATE: Math.round((correct / 30) * 100),
-      SCORE: Math.max(0, finalScore),
+      DATE: new Date(row.played_at).toLocaleDateString("en-GB"), // Format: DD/MM/YYYY
+      DURATION: durationDisplay, // Now returns "MM:SS" string
+      SUCCESS_RATE: Math.round((correct / 30) * 100), // Pure number (percentage)
+      SCORE: Math.max(0, finalScore), // Ensure score doesn't go below zero
     };
   });
 }
