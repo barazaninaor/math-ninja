@@ -1,6 +1,6 @@
 const { pool } = require("./db");
 
-// 1. Signup - Back to your original logic
+// 1. Signup - Keep your original procedure
 async function spAddNewUser(full_name, email, hashed_password, age, country) {
   await pool.execute("CALL railway.spAddNewUser(?, ?, ?, ?, ?)", [
     full_name,
@@ -11,52 +11,38 @@ async function spAddNewUser(full_name, email, hashed_password, age, country) {
   ]);
 }
 
-// 2. Edit Profile - FIXED: Using direct query to avoid Railway errors
+// 2. Login - The most stable version for Railway procedures
+async function spGetUserByEmail(email) {
+  const [rows] = await pool.execute("CALL railway.spGetUserByEmail(?)", [email]);
+  
+  // Standard check for MySQL procedure results
+  if (!rows || rows.length === 0) return null;
+  
+  // If the data is in rows[0][0], return it. Otherwise, try rows[0].
+  const user = (rows[0] && rows[0][0]) ? rows[0][0] : rows[0];
+  return user || null;
+}
+
+// 3. Edit Profile - FIXED: Direct update to bypass procedure issues
 async function spUpdateUser(theid, full_name, password, age, country) {
-  // Using direct SQL because Railway's Procedure creation is failing
   const sql = `UPDATE users SET full_name = ?, password = ?, age = ?, country = ? WHERE id = ?`;
+  
+  // We use || to ensure we NEVER send NULL, which caused your ER_BAD_NULL_ERROR
   await pool.execute(sql, [
-    full_name || "", 
-    password || "", 
-    age || 0, 
-    country || "", 
+    full_name || "",
+    password || "",
+    age || 0,
+    country || "",
     theid
   ]);
 }
 
-// 3. Login - Back to your original nested array structure
-async function spGetUserByEmail(email) {
-  try {
-    const [rows] = await pool.execute("CALL railway.spGetUserByEmail(?)", [email]);
-    
-    if (!rows || rows.length === 0) return null;
-
-    // Check if user is in rows[0][0] (standard for procedures) or directly in rows[0]
-    let user = null;
-    if (Array.isArray(rows[0])) {
-      user = rows[0][0];
-    } else {
-      user = rows[0];
-    }
-
-    // Safety: only return if it's a valid object and has the password field
-    if (user && (user.password || user.PASSWORD)) {
-      return user;
-    }
-
-    return null;
-  } catch (err) {
-    console.error("Critical Login Error:", err);
-    throw err;
-  }
-}
-
-// 4. Account Deletion - Simple and direct
+// 4. Delete - Direct and simple
 async function spDeleteUser(theid) {
   await pool.execute("DELETE FROM users WHERE id = ?", [theid]);
 }
 
-// 5. Player Scores - Your original code exactly as it was
+// 5. Player Scores - Your original code
 async function spGetPlayerScores(userId, levelId, startDate, endDate) {
   try {
     const [rows] = await pool.execute(
@@ -70,20 +56,14 @@ async function spGetPlayerScores(userId, levelId, startDate, endDate) {
       const correct = row.correct_answers;
       const duration = row.duration_seconds;
       const totalQuestions = 30;
-      const wrongAnswers = totalQuestions - correct;
-
-      let finalScore = 100;
-      finalScore -= wrongAnswers * 3;
-      if (duration > 300) {
-        finalScore -= Math.floor((duration - 300) / 10);
-      }
-      finalScore = Math.max(0, finalScore);
-
+      let finalScore = 100 - ((totalQuestions - correct) * 3);
+      if (duration > 300) finalScore -= Math.floor((duration - 300) / 10);
+      
       return {
         DATE: new Date(row.played_at).toLocaleDateString("en-GB"),
         DURATION: duration,
         SUCCESS_RATE: Math.round((correct / totalQuestions) * 100),
-        SCORE: finalScore,
+        SCORE: Math.max(0, finalScore),
       };
     });
   } catch (err) {
@@ -92,7 +72,7 @@ async function spGetPlayerScores(userId, levelId, startDate, endDate) {
   }
 }
 
-// 6. Save Game Result
+// 6. Save Result
 async function spSaveGameResult(userId, correctAnswers, durationSeconds, levelId) {
   await pool.execute("CALL railway.spSaveGameResult(?, ?, ?, ?)", [
     userId,
