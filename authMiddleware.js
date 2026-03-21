@@ -4,7 +4,6 @@ require("dotenv").config();
 function authenticateToken(req, res, next) {
   const authHeader = req.header("authorization");
 
-  // Checking for Bearer token format
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Access denied." });
   }
@@ -15,8 +14,13 @@ function authenticateToken(req, res, next) {
     if (err) {
       return res.status(403).json({ message: "Invalid token" });
     }
-    // Attach the decoded data (id/email) to req.user for the next route
-    req.user = decodedUser;
+    
+    // מוודא שה-ID נשמר בפורמט אחיד (id) כדי שה-Repository לא יקבל NULL
+    req.user = {
+      ...decodedUser,
+      id: decodedUser.id || decodedUser.Id
+    };
+    
     next();
   });
 }
