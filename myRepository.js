@@ -1,64 +1,51 @@
-const { connectDB } = require("./db");
-const sql = require("mssql");
+const { pool } = require("./db"); // אנחנו משתמשים ב-pool שייצאנו קודם
 
 // Signup logic
 async function spAddNewUser(full_name, email, hashed_password, age, country) {
-  let pool = await connectDB();
-  await pool
-    .request()
-    .input("full_name", sql.NVarChar, full_name)
-    .input("email", sql.VarChar, email)
-    .input("password", sql.NVarChar, hashed_password)
-    .input("age", sql.Int, age)
-    .input("country", sql.NVarChar, country)
-    .execute("spAddNewUser");
+  // ב-MySQL משתמשים ב-query או execute עם סימני שאלה לפי סדר הפרמטרים
+  await pool.execute("CALL spAddNewUser(?, ?, ?, ?, ?)", [
+    full_name,
+    email,
+    hashed_password,
+    age,
+    country,
+  ]);
 }
 
-// Edit Profile logic - FIXED to match 5 SQL parameters
+// Edit Profile logic
 async function spUpdateUser(theid, full_name, password, age, country) {
-  let pool = await connectDB();
-  await pool
-    .request()
-    .input("theid", sql.Int, theid)
-    .input("full_name", sql.NVarChar, full_name)
-    .input("password", sql.NVarChar, password) // This is the optional @password parameter
-    .input("age", sql.Int, age)
-    .input("country", sql.NVarChar, country)
-    .execute("spUpdateUser");
+  await pool.execute("CALL spUpdateUser(?, ?, ?, ?, ?)", [
+    theid,
+    full_name,
+    password,
+    age,
+    country,
+  ]);
 }
 
 // Helper to get user by email
 async function spGetUserByEmail(email) {
-  let pool = await connectDB();
-  let result = await pool
-    .request()
-    .input("email", sql.VarChar, email)
-    .execute("spGetUserByEmail");
-  return result.recordset[0];
+  // MySQL מחזיר מערך של תוצאות. התוצאה הראשונה היא רשימת השורות.
+  const [rows] = await pool.execute("CALL spGetUserByEmail(?)", [email]);
+  // בפרוצדורות, MySQL מחזיר מערך בתוך מערך, לכן ניגש ל-[0][0]
+  return rows[0] ? rows[0][0] : null;
 }
 
 // Account Deletion
 async function spDeleteUser(theid) {
-  let pool = await connectDB();
-  await pool
-    .request()
-    .input("theid", sql.Int, theid)
-    .query("DELETE FROM Users WHERE id = @theid");
+  await pool.execute("DELETE FROM Users WHERE id = ?", [theid]);
 }
 
-// Function to get player scores from the Stored Procedure
+// Function to get player scores
 async function spGetPlayerScores(userId, levelId, startDate, endDate) {
   try {
-    let pool = await connectDB();
-    let result = await pool
-      .request()
-      .input("UserId", sql.Int, userId)
-      .input("LevelId", sql.Int, levelId)
-      .input("StartDate", sql.Date, startDate || null)
-      .input("EndDate", sql.Date, endDate || null)
-      .execute("spGetPlayerScores");
-
-    return result.recordset;
+    const [rows] = await pool.execute("CALL spGetPlayerScores(?, ?, ?, ?)", [
+      userId,
+      levelId,
+      startDate || null,
+      endDate || null,
+    ]);
+    return rows[0]; // מחזיר את רשימת התוצאות מהפרוצדורה
   } catch (err) {
     console.error("Database Error in spGetPlayerScores:", err);
     throw err;
@@ -72,14 +59,12 @@ async function spSaveGameResult(
   durationSeconds,
   levelId,
 ) {
-  let pool = await connectDB();
-  await pool
-    .request()
-    .input("UserId", sql.Int, userId)
-    .input("CorrectAnswers", sql.Int, correctAnswers)
-    .input("DurationSeconds", sql.Int, durationSeconds)
-    .input("LevelId", sql.Int, levelId)
-    .execute("spSaveGameResult");
+  await pool.execute("CALL spSaveGameResult(?, ?, ?, ?)", [
+    userId,
+    correctAnswers,
+    durationSeconds,
+    levelId,
+  ]);
 }
 
 module.exports = {
