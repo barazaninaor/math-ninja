@@ -39,7 +39,9 @@ async function spUpdateUser(theid, full_name, password, age, country) {
 
 // 4. Delete - Direct and simple
 async function spDeleteUser(theid) {
-  await pool.execute("DELETE FROM users WHERE id = ?", [theid]);
+  // Direct SQL - bypasses the broken procedure in Railway
+  const sql = "DELETE FROM users WHERE id = ?";
+  await pool.execute(sql, [theid]);
 }
 
 // 5. Player Scores - Your original code
