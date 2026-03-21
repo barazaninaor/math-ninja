@@ -1,7 +1,7 @@
 const { pool } = require("./db");
 
 /**
- * Signup logic: Adds a new user to the database
+ * Signup logic: Adds a new user to the database using a stored procedure
  */
 async function spAddNewUser(full_name, email, hashed_password, age, country) {
   await pool.execute("CALL railway.spAddNewUser(?, ?, ?, ?, ?)", [
@@ -14,19 +14,11 @@ async function spAddNewUser(full_name, email, hashed_password, age, country) {
 }
 
 /**
- * Edit Profile logic: Updates existing user information
+ * Edit Profile logic: Updates user information.
+ * Uses direct SQL to bypass Railway's stored procedure creation issues.
+ * Uses default values (|| "") to prevent ER_BAD_NULL_ERROR.
  */
 async function spUpdateUser(theid, full_name, password, age, country) {
-  const userId = parseInt(theid, 10);
-
-  // Validation: Ensure no critical value is null
-  const finalName = full_name || "User";
-  const finalAge = age || 0;
-  const finalCountry = country || "Unknown";
-  // If password is empty, we should ideally keep the old one,
-  // but for now, we ensure it's at least a string to avoid the NULL error.
-  const finalPassword = password || "";
-
   const sql = `
     UPDATE users 
     SET full_name = ?, password = ?, age = ?, country = ? 
@@ -34,14 +26,13 @@ async function spUpdateUser(theid, full_name, password, age, country) {
   `;
 
   try {
-    if (isNaN(userId)) throw new Error("Invalid User ID");
-
+    // The || operator ensures we send empty strings/0 instead of NULL/undefined
     await pool.execute(sql, [
-      finalName,
-      finalPassword,
-      finalAge,
-      finalCountry,
-      userId,
+      full_name || "",
+      password || "",
+      age || 0,
+      country || "",
+      theid
     ]);
   } catch (err) {
     console.error("Database Update Error:", err);
@@ -50,25 +41,25 @@ async function spUpdateUser(theid, full_name, password, age, country) {
 }
 
 /**
- * Helper to fetch a user by their email address
+ * Helper to fetch a user by their email address.
+ * Standardizes the result from the MySQL procedure nested array.
  */
 async function spGetUserByEmail(email) {
-  const [rows] = await pool.execute("CALL railway.spGetUserByEmail(?)", [
-    email,
-  ]);
-  // MySQL procedures return a nested array; index [0][0] gets the record
-  return rows[0] ? rows[0][0] : null;
+  const [rows] = await pool.execute("CALL railway.spGetUserByEmail(?)", [email]);
+  // MySQL procedures return data in rows[0][0]
+  return (rows[0] && rows[0][0]) ? rows[0][0] : null;
 }
 
 /**
- * Account Deletion: Removes user from the database
+ * Account Deletion: Removes user from the database.
+ * Uses direct DELETE for better reliability in cloud environments.
  */
 async function spDeleteUser(theid) {
-  await pool.execute("DELETE FROM users WHERE id = ?", [parseInt(theid, 10)]);
+  await pool.execute("DELETE FROM users WHERE id = ?", [theid]);
 }
 
 /**
- * Fetch player scores and calculate game performance metrics
+ * Fetch player scores and calculate game performance metrics (Score/Success Rate).
  */
 async function spGetPlayerScores(userId, levelId, startDate, endDate) {
   try {
@@ -86,7 +77,7 @@ async function spGetPlayerScores(userId, levelId, startDate, endDate) {
       const wrongAnswers = totalQuestions - correct;
 
       // Scoring Logic
-      let finalScore = 100; // Starting with a perfect score
+      let finalScore = 100;
 
       // Penalty 1: -3 points per wrong answer
       finalScore -= wrongAnswers * 3;
@@ -115,14 +106,9 @@ async function spGetPlayerScores(userId, levelId, startDate, endDate) {
 }
 
 /**
- * Save game session results
+ * Save game session results using a stored procedure.
  */
-async function spSaveGameResult(
-  userId,
-  correctAnswers,
-  durationSeconds,
-  levelId,
-) {
+async function spSaveGameResult(userId, correctAnswers, durationSeconds, levelId) {
   await pool.execute("CALL railway.spSaveGameResult(?, ?, ?, ?)", [
     userId,
     correctAnswers,
