@@ -1,6 +1,8 @@
 const { pool } = require("./db");
 
-// Signup logic
+/**
+ * Signup logic: Adds a new user to the database
+ */
 async function spAddNewUser(full_name, email, hashed_password, age, country) {
   await pool.execute("CALL railway.spAddNewUser(?, ?, ?, ?, ?)", [
     full_name,
@@ -11,10 +13,15 @@ async function spAddNewUser(full_name, email, hashed_password, age, country) {
   ]);
 }
 
-// Edit Profile logic
+/**
+ * Edit Profile logic: Updates existing user information
+ */
 async function spUpdateUser(theid, full_name, password, age, country) {
+  // Ensure theid is treated as an integer to prevent database mismatch
+  const userId = parseInt(theid, 10);
+
   await pool.execute("CALL railway.spUpdateUser(?, ?, ?, ?, ?)", [
-    theid,
+    userId,
     full_name,
     password,
     age,
@@ -22,20 +29,27 @@ async function spUpdateUser(theid, full_name, password, age, country) {
   ]);
 }
 
-// Helper to get user by email
+/**
+ * Helper to fetch a user by their email address
+ */
 async function spGetUserByEmail(email) {
   const [rows] = await pool.execute("CALL railway.spGetUserByEmail(?)", [
     email,
   ]);
+  // MySQL procedures return a nested array; index [0][0] gets the record
   return rows[0] ? rows[0][0] : null;
 }
 
-// Account Deletion
+/**
+ * Account Deletion: Removes user from the database
+ */
 async function spDeleteUser(theid) {
-  await pool.execute("DELETE FROM users WHERE id = ?", [theid]);
+  await pool.execute("DELETE FROM users WHERE id = ?", [parseInt(theid, 10)]);
 }
 
-// Function to get player scores
+/**
+ * Fetch player scores and calculate game performance metrics
+ */
 async function spGetPlayerScores(userId, levelId, startDate, endDate) {
   try {
     const [rows] = await pool.execute(
@@ -48,30 +62,30 @@ async function spGetPlayerScores(userId, levelId, startDate, endDate) {
     return results.map((row) => {
       const correct = row.correct_answers;
       const duration = row.duration_seconds;
-      const totalQuestions = 30; // לפי ההוראות
+      const totalQuestions = 30;
       const wrongAnswers = totalQuestions - correct;
 
-      // --- חישוב הציון לפי חוקי המשחק ---
-      let finalScore = 100; // מתחילים מציון מושלם
+      // Scoring Logic
+      let finalScore = 100; // Starting with a perfect score
 
-      // 1. קנס על תשובות שגויות: -3 נקודות לכל טעות
+      // Penalty 1: -3 points per wrong answer
       finalScore -= wrongAnswers * 3;
 
-      // 2. קנס על זמן: מעל 5 דקות (300 שניות), -1 נקודה לכל 10 שניות
+      // Penalty 2: Time penalty (-1 point per 10 seconds over 5 minutes)
       if (duration > 300) {
         const extraTime = duration - 300;
         const timePenalty = Math.floor(extraTime / 10);
         finalScore -= timePenalty;
       }
 
-      // מוודאים שהציון לא יורד מתחת ל-0
+      // Ensure score stays within 0-100 range
       finalScore = Math.max(0, finalScore);
 
       return {
         DATE: new Date(row.played_at).toLocaleDateString("en-GB"),
         DURATION: duration,
         SUCCESS_RATE: Math.round((correct / totalQuestions) * 100),
-        SCORE: finalScore, // זה הציון שיקבע את גובה הנקודה בגרף
+        SCORE: finalScore,
       };
     });
   } catch (err) {
@@ -80,7 +94,9 @@ async function spGetPlayerScores(userId, levelId, startDate, endDate) {
   }
 }
 
-// Game result storage logic
+/**
+ * Save game session results
+ */
 async function spSaveGameResult(
   userId,
   correctAnswers,
