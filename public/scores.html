@@ -340,6 +340,11 @@
                 min: 0,
                 max: 110,
                 ticks: { color: "#fff" },
+                callback: function(value) {
+                    if (value <= 100) return value;
+                  },
+                  stepSize:
+                },
                 grid: { color: "rgba(255,255,255,0.05)" },
               },
               x: { ticks: { color: "#fff" }, grid: { display: false } },
