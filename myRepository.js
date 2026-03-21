@@ -17,20 +17,22 @@ async function spAddNewUser(full_name, email, hashed_password, age, country) {
  * Edit Profile logic: Updates existing user information
  */
 async function spUpdateUser(theid, full_name, password, age, country) {
-  // Ensure theid is treated as an integer
+  // Ensure theid is an integer
   const userId = parseInt(theid, 10);
 
-  /**
-   * We use a direct UPDATE query here because Railway's interface
-   * sometimes struggles with creating stored procedures.
-   */
+  // We write the SQL directly here to bypass Railway's procedure issues
   const sql = `
     UPDATE users 
     SET full_name = ?, password = ?, age = ?, country = ? 
     WHERE id = ?
   `;
 
-  await pool.execute(sql, [full_name, password, age, country, userId]);
+  try {
+    await pool.execute(sql, [full_name, password, age, country, userId]);
+  } catch (err) {
+    console.error("Direct Update Error:", err);
+    throw err;
+  }
 }
 
 /**
