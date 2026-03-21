@@ -32,7 +32,7 @@ async function spUpdateUser(theid, full_name, password, age, country) {
       password || "",
       age || 0,
       country || "",
-      theid
+      theid,
     ]);
   } catch (err) {
     console.error("Database Update Error:", err);
@@ -45,17 +45,28 @@ async function spUpdateUser(theid, full_name, password, age, country) {
  * Standardizes the result from the MySQL procedure nested array.
  */
 async function spGetUserByEmail(email) {
-  const [rows] = await pool.execute("CALL railway.spGetUserByEmail(?)", [email]);
-  // MySQL procedures return data in rows[0][0]
-  return (rows[0] && rows[0][0]) ? rows[0][0] : null;
-}
+  try {
+    const [rows] = await pool.execute("CALL railway.spGetUserByEmail(?)", [
+      email,
+    ]);
 
-/**
- * Account Deletion: Removes user from the database.
- * Uses direct DELETE for better reliability in cloud environments.
- */
-async function spDeleteUser(theid) {
-  await pool.execute("DELETE FROM users WHERE id = ?", [theid]);
+    // Check all possible return structures from MySQL procedure
+    if (!rows || rows.length === 0) return null;
+
+    // Procedures usually return data in rows[0][0].
+    // If not, we try rows[0].
+    const user = rows[0] && rows[0][0] ? rows[0][0] : rows[0];
+
+    // Safety check: ensure we actually got a user object with a password
+    if (user && user.email) {
+      return user;
+    }
+
+    return null;
+  } catch (err) {
+    console.error("Login Retrieval Error:", err);
+    throw err;
+  }
 }
 
 /**
@@ -108,7 +119,12 @@ async function spGetPlayerScores(userId, levelId, startDate, endDate) {
 /**
  * Save game session results using a stored procedure.
  */
-async function spSaveGameResult(userId, correctAnswers, durationSeconds, levelId) {
+async function spSaveGameResult(
+  userId,
+  correctAnswers,
+  durationSeconds,
+  levelId,
+) {
   await pool.execute("CALL railway.spSaveGameResult(?, ?, ?, ?)", [
     userId,
     correctAnswers,
