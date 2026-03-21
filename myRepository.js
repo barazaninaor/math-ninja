@@ -26,9 +26,29 @@ async function spUpdateUser(theid, full_name, password, age, country) {
 
 // 3. Login - Back to your original nested array structure
 async function spGetUserByEmail(email) {
-  const [rows] = await pool.execute("CALL railway.spGetUserByEmail(?)", [email]);
-  // This is how your original code expected the data
-  return rows[0] ? rows[0][0] : null;
+  try {
+    const [rows] = await pool.execute("CALL railway.spGetUserByEmail(?)", [email]);
+    
+    if (!rows || rows.length === 0) return null;
+
+    // Check if user is in rows[0][0] (standard for procedures) or directly in rows[0]
+    let user = null;
+    if (Array.isArray(rows[0])) {
+      user = rows[0][0];
+    } else {
+      user = rows[0];
+    }
+
+    // Safety: only return if it's a valid object and has the password field
+    if (user && (user.password || user.PASSWORD)) {
+      return user;
+    }
+
+    return null;
+  } catch (err) {
+    console.error("Critical Login Error:", err);
+    throw err;
+  }
 }
 
 // 4. Account Deletion - Simple and direct
