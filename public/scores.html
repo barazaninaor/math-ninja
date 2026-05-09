@@ -239,7 +239,15 @@
             return;
           }
 
-          filteredData = await response.json();
+          const rawData = await response.json();
+
+          // מיון הנתונים מהתאריך החדש ביותר לישן ביותר עבור הטבלה
+          filteredData = [...rawData].sort((a, b) => {
+            const [dayA, monthA, yearA] = a.DATE.split('/').map(Number);
+            const [dayB, monthB, yearB] = b.DATE.split('/').map(Number);
+            return new Date(yearB, monthB - 1, dayB) - new Date(yearA, monthA - 1, dayA);
+          });
+
           currentPage = 1;
           updateTable();
           updateChart(filteredData);
@@ -248,6 +256,9 @@
           filteredData = [];
           updateTable();
         }
+
+
+        
       }
 
       /**
