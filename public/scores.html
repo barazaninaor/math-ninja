@@ -309,16 +309,20 @@
           .getContext("2d");
         if (myChart) myChart.destroy();
 
-        // Prepare data: reverse to show chronological order and store in local variable
-        const chartData = [...data].reverse();
-
+        // 1. מיון הנתונים לפי תאריך (מהישן לחדש)
+        const chartData = [...data].sort((a, b) => {
+          const [dayA, monthA, yearA] = a.DATE.split('/').map(Number);
+          const [dayB, monthB, yearB] = b.DATE.split('/').map(Number);
+          return new Date(yearA, monthA - 1, dayA) - new Date(yearB, monthB - 1, dayB);
+        });
+        
+        // 2. יצירת הלייבלים מהנתונים הממוינים
         const labels = chartData.map((d) => {
           const parts = d.DATE.split("/");
           return parts.length >= 2
             ? [`${parts[0]}/${parts[1]}`, parts[2]]
             : d.DATE;
         });
-
         myChart = new Chart(ctx, {
           type: "line",
           data: {
