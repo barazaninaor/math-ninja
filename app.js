@@ -18,7 +18,7 @@ app.post("/signUp", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     await MyRepository.spAddNewUser(fullName, email, hashedPassword, age, country);
     const newUser = await MyRepository.spGetUserByEmail(email);
-    const token = jwt.sign({ id: newUser.id || newUser.Id, email: email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: newUser.id || newUser.Id, email: email }, process.env.JWT_SECRET, { expiresIn: "365d" });
     res.status(201).json({ message: "User registered successfully", token, user: { fullName, email, age, country } });
   } catch (error) {
     if (error.errno === 1062 || error.code === "ER_DUP_ENTRY") return res.status(400).json({ message: "Email already exists" });
@@ -37,7 +37,7 @@ app.post("/signIn", async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: user.id || user.Id, email: user.email || user.Email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: user.id || user.Id, email: user.email || user.Email }, process.env.JWT_SECRET, { expiresIn: "365d" });
     res.json({ token, user: { fullName: user.full_name || user.FullName, email: user.email || user.Email, age: user.age || user.Age, country: user.country || user.Country } });
   } catch (error) {
     console.error("Signin error:", error);
